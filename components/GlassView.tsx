@@ -27,12 +27,12 @@ const GlassView = ({
       duration: 300,
       useNativeDriver: true,
     }).start();
+    onClick && onClick();
   };
   return (
     <Pressable
       onPressIn={() => {
         handlePressIn();
-        onClick && onClick();
       }}
       onPressOut={handlePressOut}
     >

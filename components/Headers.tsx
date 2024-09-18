@@ -21,7 +21,12 @@ function MainPageHeader({ title }: Readonly<{ title: string }>) {
         }}
         errorStyle={{ display: "none" }}
       />
-      <GradientButton width={50} height={50}>
+      <GradientButton
+        onPress={() => {
+          console.log("search");
+        }}
+        buttonStyles={{ width: 50 }}
+      >
         <FontAwesome name="search" size={24} color="#fff" />
       </GradientButton>
     </View>

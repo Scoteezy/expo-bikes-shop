@@ -7,7 +7,8 @@ import "react-native-reanimated";
 
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/server/supabase";
-
+import { Provider } from "react-redux";
+import { store } from "@/lib/store/store";
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -67,12 +68,18 @@ function RootLayoutNav() {
     });
   }, []);
   return (
-    <Stack>
-      {session?.user ? (
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      ) : (
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      )}
-    </Stack>
+    <Provider store={store}>
+      <Stack>
+        {session?.user ? (
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        ) : (
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        )}
+        <Stack.Screen
+          name="product"
+          options={{ title: "Об отеле", headerBackTitle: "Назад" }}
+        />
+      </Stack>
+    </Provider>
   );
 }

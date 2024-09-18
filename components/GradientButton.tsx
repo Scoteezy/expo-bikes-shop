@@ -6,10 +6,12 @@ export default function GradientButton({
   children,
   buttonStyles,
   onPress,
+  disabled,
 }: Readonly<{
   children: ReactNode;
   onPress: () => unknown;
   buttonStyles?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 }>) {
   return (
     <Pressable
@@ -17,7 +19,9 @@ export default function GradientButton({
         styles.headerButton,
         pressed && styles.pressed,
         buttonStyles,
+        disabled && { opacity: 0.3 },
       ]}
+      disabled={disabled}
       onPress={onPress}
     >
       <LinearGradient colors={["#34C8E8", "#4E4AF2"]} style={[styles.gradient]}>
@@ -31,7 +35,7 @@ const styles = StyleSheet.create({
   headerButton: {
     borderRadius: 12,
     overflow: "hidden", // Чтобы градиент не выходил за границы
-    maxHeight: 50,
+    height: 50,
   },
   gradient: {
     padding: 10, // Паддинг внутри кнопки для контента (иконки)
