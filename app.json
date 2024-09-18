@@ -31,6 +31,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "655626f8-7ac5-484e-84b4-3df8ace09d5d"
+      }
+    },
+    "owner": "devdvlive"
   }
 }
