@@ -4,7 +4,6 @@ export const defaultStyles = StyleSheet.create({
     flex: 1,
     marginTop: 160,
     marginBottom: 110,
-    marginHorizontal: 20,
     gap: 20,
   },
 });

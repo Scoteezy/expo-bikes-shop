@@ -1,5 +1,5 @@
-import { ReactNode, useState } from "react";
-import { StyleSheet, Pressable, Animated } from "react-native";
+import React, { useRef, useState } from "react";
+import { PanResponder, StyleSheet, Animated } from "react-native";
 import { BlurView } from "expo-blur";
 
 const GlassView = ({
@@ -7,61 +7,69 @@ const GlassView = ({
   onClick,
   backgroundColor = "rgba(0, 0, 0, 0.2)",
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
   onClick?: () => void;
   backgroundColor?: string;
 }) => {
   const [opacity] = useState(new Animated.Value(1)); // Начальное значение прозрачности
+  const swipeThreshold = 10; // Порог для различения свайпа и клика
+  const startX = useRef(0);
+  const startY = useRef(0);
 
-  const handlePressIn = () => {
-    Animated.timing(opacity, {
-      toValue: 0.8,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: (e) => {
+        startX.current = e.nativeEvent.pageX;
+        startY.current = e.nativeEvent.pageY;
+        Animated.timing(opacity, {
+          toValue: 0.8,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      },
+      onPanResponderRelease: (e) => {
+        const deltaX = Math.abs(e.nativeEvent.pageX - startX.current);
+        const deltaY = Math.abs(e.nativeEvent.pageY - startY.current);
 
-  const handlePressOut = () => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    onClick && onClick();
-  };
+        if (deltaX < swipeThreshold && deltaY < swipeThreshold) {
+          onClick && onClick(); // Считаем за клик
+        }
+
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      },
+    })
+  ).current;
+
   return (
-    <Pressable
-      onPressIn={() => {
-        handlePressIn();
-      }}
-      onPressOut={handlePressOut}
+    <Animated.View
+      {...panResponder.panHandlers}
+      style={[styles.glassContainer, { opacity }]}
     >
-      <Animated.View style={[styles.glassContainer, { opacity }]}>
-        <BlurView
-          intensity={70}
-          tint="dark"
-          style={[styles.glass, { backgroundColor }]}
-        >
-          {children}
-        </BlurView>
-      </Animated.View>
-    </Pressable>
+      <BlurView
+        intensity={70}
+        tint="dark"
+        style={[styles.glass, { backgroundColor }]}
+      >
+        {children}
+      </BlurView>
+    </Animated.View>
   );
 };
 
-export default GlassView;
 const styles = StyleSheet.create({
   glassContainer: {
-    borderRadius: 15, // Скругленные углы
-    overflow: "hidden", // Обрезка для закругления углов
+    borderRadius: 10,
+    overflow: "hidden",
   },
   glass: {
-    padding: 20, // Внутренний отступ
-    shadowColor: "#000", // Тень
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    borderColor: "rgba(0, 0, 0, 0.1)", // Полупрозрачная граница
-    borderWidth: 1,
+    padding: 10,
+    borderRadius: 10,
   },
 });
+
+export default GlassView;

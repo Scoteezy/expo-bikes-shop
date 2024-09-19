@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, StyleSheet, Image, Text } from "react-native";
+import { View, StyleSheet, Image, Text, ActivityIndicator } from "react-native";
 import GradientBackground from "@/components/GradientBackground";
 import GlassView from "@/components/GlassView";
 import { FilterType } from "@/types";
@@ -10,45 +10,39 @@ import { defaultStyles } from "@/constants/Style";
 import { router } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { fetchProducts } from "@/lib/store/slices/productSlice";
+import DiscountSlider from "@/components/DiscountSlider";
 
 export default function TabOneScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const filters: Array<FilterType> = ["all", "bicycles", "gear", "tools"];
   const dispatch = useAppDispatch();
-  const { products, status } = useAppSelector((store) => store.products);
+  const { products, discountProduct, status } = useAppSelector(
+    (store) => store.products
+  );
   useEffect(() => {
     const getProducts = async () => {
       await dispatch(fetchProducts());
     };
     getProducts();
   }, []);
+  if (status !== "fulfilled") {
+    return (
+      <GradientBackground>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
+        >
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      </GradientBackground>
+    );
+  }
+
   return (
     <GradientBackground>
       <View style={defaultStyles.container}>
-        <GlassView
-          onClick={() =>
-            router.push({ pathname: "/product", params: { id: "123" } })
-          }
-        >
-          <View style={styles.discount}>
-            <Image
-              source={require("@/assets/images/discount.png")}
-              style={styles.image}
-              resizeMode="contain"
-            />
-
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "bold",
-                opacity: 0.6,
-                color: "#fff",
-              }}
-            >
-              30% Скидка
-            </Text>
-          </View>
-        </GlassView>
+        <View style={{ height: 230 }}>
+          <DiscountSlider discountProducts={discountProduct || []} />
+        </View>
         <View style={styles.filters}>
           {filters.map((filter) =>
             activeFilter === filter ? (
@@ -95,19 +89,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14,
-  },
-  discount: {
-    display: "flex",
-    gap: 5,
-    flexDirection: "column",
+    marginHorizontal: 20,
   },
   filters: {
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
-  },
-  image: {
-    width: "100%",
-    height: 150,
+    marginHorizontal: 20,
   },
 });

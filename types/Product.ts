@@ -7,8 +7,13 @@ export type Product = {
   category: string;
   in_stock: boolean;
   image: string;
+  discount?: number;
 };
 export type FetchedProduct = {
   data: Product[] | null;
+  error: PostgrestError | null;
+};
+export type FetchedDiscount = {
+  discount: Product[] | null;
   error: PostgrestError | null;
 };

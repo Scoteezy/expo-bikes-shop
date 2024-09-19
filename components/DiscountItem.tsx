@@ -1,17 +1,12 @@
-import { View, StyleSheet, Image, Text, ActivityIndicator } from "react-native";
-import GlassView from "@/components/GlassView";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, Text, Image } from "react-native";
+import GlassView from "./GlassView";
 import { Product } from "@/types/Product";
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/server/supabase";
 import { LoadingOrError } from "./LoadingOrError";
 
-const ShopItem = ({
-  onClick,
-  product,
-}: {
-  onClick: () => void;
-  product: Product;
-}) => {
+const DiscountItem = ({ discount }: { discount: Product }) => {
   const [productImage, setProductImage] = useState("");
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -37,49 +32,58 @@ const ShopItem = ({
         }
       }
     }
-    downloadImage(product.image);
+    downloadImage(discount.image);
   }, []);
   return (
-    <View style={{ width: "48%" }}>
-      <GlassView onClick={onClick}>
+    <GlassView
+      onClick={() =>
+        router.push({ pathname: "/product", params: { id: "123" } })
+      }
+    >
+      <View style={styles.discount}>
         {productImage ? (
           <Image
             source={{ uri: productImage }}
-            style={styles.itemImage}
+            style={styles.image}
             resizeMode="contain"
           />
         ) : (
-          <LoadingOrError error={error} style={styles.itemImage} />
+          <LoadingOrError error={error} style={styles.image} />
         )}
-
-        <View style={{ gap: 8 }}>
-          <Text style={styles.itemSubText}>{product.category}</Text>
-          <Text numberOfLines={1} style={styles.text}>
-            {product.name}
-          </Text>
-          <Text style={styles.itemSubText}>{product.price} ₽</Text>
-        </View>
-      </GlassView>
-    </View>
+        <Text
+          style={{
+            fontSize: 26,
+            fontWeight: "bold",
+            opacity: 0.6,
+            color: "#fff",
+          }}
+        >
+          {discount.discount}% Скидка
+        </Text>
+      </View>
+    </GlassView>
   );
 };
 
-export default ShopItem;
+export default DiscountItem;
 const styles = StyleSheet.create({
-  text: {
-    color: "#fff", // Белый цвет текста
-    fontSize: 17,
-    fontWeight: "bold",
+  items: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 14,
   },
-  itemImage: {
+  discount: {
+    display: "flex",
+    gap: 5,
+    flexDirection: "column",
+  },
+  filters: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  image: {
     width: "100%",
-    height: 100,
-    marginBottom: 15,
-  },
-  itemSubText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "medium",
-    opacity: 0.6,
+    height: 150,
   },
 });
