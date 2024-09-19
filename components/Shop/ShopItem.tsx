@@ -1,9 +1,12 @@
-import { View, StyleSheet, Image, Text, ActivityIndicator } from "react-native";
-import GlassView from "@/components/GlassView";
+import { View, StyleSheet, Image, Text } from "react-native";
+import GlassView from "@/components/Shared/GlassView";
 import { Product } from "@/types/Product";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/server/supabase";
-import { LoadingOrError } from "./LoadingOrError";
+import { LoadingOrError } from "../Shared/LoadingOrError";
+import Category from "../Shared/Category";
+import { FilterType } from "@/types";
+import Price from "../Shared/Price";
 
 const ShopItem = ({
   onClick,
@@ -53,11 +56,24 @@ const ShopItem = ({
         )}
 
         <View style={{ gap: 8 }}>
-          <Text style={styles.itemSubText}>{product.category}</Text>
+          <Category
+            style={styles.itemSubText}
+            name={product.category as FilterType}
+          />
           <Text numberOfLines={1} style={styles.text}>
             {product.name}
           </Text>
-          <Text style={styles.itemSubText}>{product.price} ₽</Text>
+          <Price
+            price={product.price}
+            discount={product.discount}
+            inline
+            styles={{
+              color: "rgba(255, 255, 255,0.6)",
+              fontSize: 15,
+              secondFontSize: 10,
+            }}
+          />
+          {/* <Text style={styles.itemSubText}>{product.price} ₽</Text> */}
         </View>
       </GlassView>
     </View>
@@ -77,7 +93,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   itemSubText: {
-    color: "#fff",
+    color: "rgba(255, 255, 255,0.6)",
     fontSize: 15,
     fontWeight: "medium",
     opacity: 0.6,

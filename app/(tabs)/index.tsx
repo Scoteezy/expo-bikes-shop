@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
-import { View, StyleSheet, Image, Text, ActivityIndicator } from "react-native";
-import GradientBackground from "@/components/GradientBackground";
-import GlassView from "@/components/GlassView";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import GradientBackground from "@/components/Shared/GradientBackground";
+import GlassView from "@/components/Shared/GlassView";
 import { FilterType } from "@/types";
-import FilterIcon from "@/components/FilterIcon";
-import ShopItem from "@/components/ShopItem";
+import FilterIcon from "@/components/Shop/FilterIcon";
+import ShopItem from "@/components/Shop/ShopItem";
 import { ScrollView } from "react-native-gesture-handler";
 import { defaultStyles } from "@/constants/Style";
 import { router } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { fetchProducts } from "@/lib/store/slices/productSlice";
-import DiscountSlider from "@/components/DiscountSlider";
+import DiscountSlider from "@/components/Discount/DiscountSlider";
+import { MainPageHeader } from "@/components/Headers";
 
 export default function TabOneScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const filters: Array<FilterType> = ["all", "bicycles", "gear", "tools"];
+  const filters: Array<FilterType> = ["all", "bicycles", "gear"];
   const dispatch = useAppDispatch();
   const { products, discountProduct, status } = useAppSelector(
     (store) => store.products
@@ -39,6 +40,7 @@ export default function TabOneScreen() {
 
   return (
     <GradientBackground>
+      <MainPageHeader title="Выбери свой велосипед" />
       <View style={defaultStyles.container}>
         <View style={{ height: 230 }}>
           <DiscountSlider discountProducts={discountProduct || []} />

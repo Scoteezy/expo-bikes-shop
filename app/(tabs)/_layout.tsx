@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
-import MainPageHeader from "@/components/Headers";
 import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { supabase } from "@/lib/server/supabase";
@@ -12,14 +11,14 @@ function TabBarIcon(
   props: Readonly<{
     name: React.ComponentProps<typeof FontAwesome>["name"];
     color: string;
-    focused: boolean; // Новый пропс для определения активного состояния
+    focused: boolean;
   }>
 ) {
   return (
     <View style={styles.iconContainer}>
       {props.focused ? (
         <LinearGradient
-          colors={["#34C8E8", "#4E4AF2"]} // Градиент для активного таба
+          colors={["#34C8E8", "#4E4AF2"]}
           style={styles.activeTabIcon}
         >
           <FontAwesome name={props.name} size={28} color="#fff" />
@@ -68,23 +67,13 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            headerShown: true,
             title: "Choose Your Bike",
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name="bicycle" color={color} focused={focused} />
             ),
-            header: () => <MainPageHeader title="Выбери свой велосипед" />, // Кастомный хедер
           }}
         />
-        <Tabs.Screen
-          name="map"
-          options={{
-            title: "Nearest Shops",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="map" color={color} focused={focused} />
-            ),
-          }}
-        />
+
         <Tabs.Screen
           name="cart"
           options={{
@@ -104,6 +93,15 @@ export default function TabLayout() {
             title: "favorite",
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name="heart" color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="orders"
+          options={{
+            title: "My Orders",
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name="file-text" color={color} focused={focused} />
             ),
           }}
         />

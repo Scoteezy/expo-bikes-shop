@@ -3,7 +3,7 @@ import { supabase } from "@/lib/server/supabase";
 import { StyleSheet, View, Alert, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import GradientButton from "./GradientButton";
+import GradientButton from "../Shared/GradientButton";
 
 interface Props {
   size: number;

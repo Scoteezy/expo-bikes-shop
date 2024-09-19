@@ -77,7 +77,11 @@ function RootLayoutNav() {
         )}
         <Stack.Screen
           name="product"
-          options={{ title: "Об отеле", headerBackTitle: "Назад" }}
+          options={{
+            title: "Об отеле",
+            headerBackTitle: "Назад",
+            headerShown: false,
+          }}
         />
       </Stack>
     </Provider>

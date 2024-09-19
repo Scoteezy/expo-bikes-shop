@@ -1,8 +1,5 @@
-import {
-  fetchProducts as fetchProd,
-  fetchRandomDiscountProducts,
-} from "@/lib/server/queries/products";
-import { Product, FetchedProduct, FetchedDiscount } from "@/types/Product";
+import { fetchProducts as fetchProd } from "@/lib/server/queries/products";
+import { Product, FetchedProduct } from "@/types/Product";
 import { asyncThunkCreator, buildCreateSlice } from "@reduxjs/toolkit";
 
 export interface HotelsState {
@@ -32,16 +29,16 @@ export const productSlice = createSliceWithThunk({
           if (error) {
             return rejectWithValue(error.message); // Если есть ошибка, возвращаем ее
           }
-
-          const discount: FetchedDiscount = await fetchRandomDiscountProducts();
-          console.log(discount);
-          if (!discount.discount || !Array.isArray(discount.discount)) {
+          const discount = data?.filter(
+            (value) => value.discount !== undefined
+          );
+          if (!discount || !Array.isArray(discount)) {
             return { products: data };
           } else if (!data || !Array.isArray(data)) {
-            return { discount: discount.discount };
+            return { discount: discount };
           }
 
-          return { products: data, discount: discount.discount };
+          return { products: data, discount: discount };
         } catch (e) {
           console.log(e);
           // Любая другая непредвиденная ошибка

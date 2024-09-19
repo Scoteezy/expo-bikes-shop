@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View, AppState, Text } from "react-native";
 import { supabase } from "@/lib/server/supabase";
 import { Input } from "@rneui/themed";
-import GradientBackground from "./GradientBackground";
-import GradientButton from "./GradientButton";
+import GradientBackground from "../Shared/GradientBackground";
+import GradientButton from "../Shared/GradientButton";
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
     supabase.auth.startAutoRefresh();

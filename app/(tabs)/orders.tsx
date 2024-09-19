@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text } from "react-native";
 
-import GradientBackground from "@/components/GradientBackground";
+import GradientBackground from "@/components/Shared/GradientBackground";
 
 export default function MapPage() {
   return (

@@ -24,7 +24,12 @@ export default function GradientButton({
       disabled={disabled}
       onPress={onPress}
     >
-      <LinearGradient colors={["#34C8E8", "#4E4AF2"]} style={[styles.gradient]}>
+      <LinearGradient
+        colors={["#34C8E8", "#4E4AF2"]}
+        style={[styles.gradient]}
+        start={{ x: 0.5, y: 0.5 }}
+        end={{ x: 0.51, y: 0.99 }}
+      >
         {children}
       </LinearGradient>
     </Pressable>

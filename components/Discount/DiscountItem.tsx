@@ -1,10 +1,10 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Image } from "react-native";
-import GlassView from "./GlassView";
+import GlassView from "../Shared/GlassView";
 import { Product } from "@/types/Product";
 import { supabase } from "@/lib/server/supabase";
-import { LoadingOrError } from "./LoadingOrError";
+import { LoadingOrError } from "../Shared/LoadingOrError";
 
 const DiscountItem = ({ discount }: { discount: Product }) => {
   const [productImage, setProductImage] = useState("");
@@ -37,7 +37,7 @@ const DiscountItem = ({ discount }: { discount: Product }) => {
   return (
     <GlassView
       onClick={() =>
-        router.push({ pathname: "/product", params: { id: "123" } })
+        router.push({ pathname: "/product", params: { id: discount.id } })
       }
     >
       <View style={styles.discount}>

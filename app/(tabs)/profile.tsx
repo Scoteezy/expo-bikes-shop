@@ -1,13 +1,12 @@
 import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
 
-import GradientBackground from "@/components/GradientBackground";
+import GradientBackground from "@/components/Shared/GradientBackground";
 import { supabase } from "@/lib/server/supabase";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { useEffect, useState } from "react";
 import { fetchUser, updateUser } from "@/lib/store/slices/userSlice";
 import { Input } from "@rneui/themed";
-import Avatar from "@/components/Avatar";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Avatar from "@/components/Profile/Avatar";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
