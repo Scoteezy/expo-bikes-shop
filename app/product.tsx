@@ -1,25 +1,30 @@
-import { MultiHeader } from "@/components/Headers";
+import { ProductHeader } from "@/components/Header/ProductHeader";
 import Category from "@/components/Shared/Category";
 import GradientBackground from "@/components/Shared/GradientBackground";
 import GradientButton from "@/components/Shared/GradientButton";
 import { LoadingOrError } from "@/components/Shared/LoadingOrError";
 import Price from "@/components/Shared/Price";
 import { defaultStyles } from "@/constants/Style";
+import {
+  checkFavorite,
+  makeFavorite,
+  removeFavorite,
+} from "@/lib/server/queries/favorite";
 import { supabase } from "@/lib/server/supabase";
 import { useAppSelector } from "@/lib/store/hooks";
 import { FilterType } from "@/types";
 import { Product } from "@/types/Product";
-import { calculatePrice } from "@/utils";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { View, Image, StyleSheet, Text } from "react-native";
 export default function ProductPage() {
   const [productImage, setProductImage] = useState("");
-
+  const [isFavorite, setIsFavorite] = useState<boolean | undefined>();
   const params = useLocalSearchParams();
-  const { id } = params; // Get the ID passed through the Link
+  const { id } = params;
   const products = useAppSelector((store) => store.products.products);
+  const session = useAppSelector((store) => store.session.session);
   const product: Product | undefined = useMemo(() => {
     return products.find((obj) => obj.id == id);
   }, [id]);
@@ -45,15 +50,47 @@ export default function ProductPage() {
         }
       }
     }
+    async function checkFav() {
+      if (!session) {
+        return;
+      }
+      const isFav = await checkFavorite(session, id as string);
+      setIsFavorite(isFav);
+    }
+    checkFav();
     product && downloadImage(product.image);
   }, [product]);
-
+  const makeFav = async () => {
+    if (!session) {
+      return;
+    }
+    const error = await makeFavorite(session, id as string);
+    if (error) {
+      console.log("Error making favorite: ", error.message);
+    }
+    setIsFavorite(true);
+  };
+  const removeFav = async () => {
+    if (!session) {
+      return;
+    }
+    const error = await removeFavorite(session, id as string);
+    if (error) {
+      console.log("Error removing favorite: ", error.message);
+    }
+    setIsFavorite(false);
+  };
   if (!product) {
     return null;
   }
   return (
     <GradientBackground>
-      <MultiHeader title={product.name} />
+      <ProductHeader
+        title={product.name}
+        isLiked={isFavorite}
+        makeFav={makeFav}
+        removeFav={removeFav}
+      />
       <View style={defaultStyles.container}>
         {productImage ? (
           <Image

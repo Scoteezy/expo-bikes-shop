@@ -34,7 +34,6 @@ export default function TabLayout() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchSession());
-
     supabase.auth.onAuthStateChange((_event, session) => {
       dispatch(updateSession(session));
     });

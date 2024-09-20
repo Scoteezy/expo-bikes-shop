@@ -11,7 +11,7 @@ import { router } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { fetchProducts } from "@/lib/store/slices/productSlice";
 import DiscountSlider from "@/components/Discount/DiscountSlider";
-import { MainPageHeader } from "@/components/Headers";
+import { ShopHeader } from "@/components/Header/ShopHeader";
 
 export default function TabOneScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
@@ -40,7 +40,7 @@ export default function TabOneScreen() {
 
   return (
     <GradientBackground>
-      <MainPageHeader title="Выбери свой велосипед" />
+      <ShopHeader title="Выбери свой велосипед" />
       <View style={defaultStyles.container}>
         <View style={{ height: 230 }}>
           <DiscountSlider discountProducts={discountProduct || []} />
