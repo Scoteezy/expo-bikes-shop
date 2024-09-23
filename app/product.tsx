@@ -19,13 +19,16 @@ import {
 } from "@/lib/store/slices/favoriteSlice";
 import { FilterType } from "@/types";
 import { Product } from "@/types/Product";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
+import { Pressable } from "react-native";
 import { View, Image, StyleSheet, Text } from "react-native";
 export default function ProductPage() {
   const [productImage, setProductImage] = useState("");
   const [isFavorite, setIsFavorite] = useState<boolean | undefined>();
+  const [isInCart, setIsInCart] = useState(true);
   const params = useLocalSearchParams();
   const { id } = params;
   const products = useAppSelector((store) => store.products.products);
@@ -150,13 +153,17 @@ export default function ProductPage() {
               styles={{ fontSize: 24, secondFontSize: 16, color: "#3D9CEA" }}
             />
             <GradientButton
-              onPress={() => console.log("add to cart")}
+              onPress={
+                isInCart
+                  ? () => router.navigate("/cart")
+                  : () => console.log("add to cart")
+              }
               buttonStyles={{ width: 170, height: 44 }}
             >
               <Text
                 style={{ fontSize: 15, color: "#fff", fontWeight: "medium" }}
               >
-                Добавить в корзину
+                {isInCart ? "Перейти в корзину" : "Добавить в корзину"}
               </Text>
             </GradientButton>
           </LinearGradient>
@@ -218,5 +225,13 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 208,
+  },
+  minusButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#353F54",
+    width: 24,
+    height: 24,
+    borderRadius: 5,
   },
 });
