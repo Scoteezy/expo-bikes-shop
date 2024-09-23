@@ -11,7 +11,12 @@ import {
   removeFavorite,
 } from "@/lib/server/queries/favorite";
 import { supabase } from "@/lib/server/supabase";
-import { useAppSelector } from "@/lib/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import {
+  fetchFavorite,
+  makeFavoriteSync,
+  removeFavoriteSync,
+} from "@/lib/store/slices/favoriteSlice";
 import { FilterType } from "@/types";
 import { Product } from "@/types/Product";
 import { LinearGradient } from "expo-linear-gradient";
@@ -28,6 +33,8 @@ export default function ProductPage() {
   const product: Product | undefined = useMemo(() => {
     return products.find((obj) => obj.id == id);
   }, [id]);
+  const { favorite } = useAppSelector((store) => store.favorite);
+  const dispatch = useAppDispatch();
   useEffect(() => {
     async function downloadImage(path: string) {
       const cleanedPath = path.replace(/[^\w.-]/g, "");
@@ -54,7 +61,12 @@ export default function ProductPage() {
       if (!session) {
         return;
       }
-      const isFav = await checkFavorite(session, id as string);
+      if (favorite.length === 0 || favorite === null || !favorite) {
+        console.log("dispatch");
+        await dispatch(fetchFavorite(session));
+      }
+      const isFav = !!favorite.find((prod) => prod.id === id);
+      // const isFav = await checkFavorite(session, id as string);
       setIsFavorite(isFav);
     }
     checkFav();
@@ -64,10 +76,12 @@ export default function ProductPage() {
     if (!session) {
       return;
     }
+
     const error = await makeFavorite(session, id as string);
     if (error) {
       console.log("Error making favorite: ", error.message);
     }
+    product && dispatch(makeFavoriteSync(product));
     setIsFavorite(true);
   };
   const removeFav = async () => {
@@ -78,6 +92,7 @@ export default function ProductPage() {
     if (error) {
       console.log("Error removing favorite: ", error.message);
     }
+    product && dispatch(removeFavoriteSync(product.id));
     setIsFavorite(false);
   };
   if (!product) {

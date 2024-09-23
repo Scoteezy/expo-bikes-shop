@@ -2,14 +2,14 @@ import { fetchProducts as fetchProd } from "@/lib/server/queries/products";
 import { Product, FetchedProduct } from "@/types/Product";
 import { asyncThunkCreator, buildCreateSlice } from "@reduxjs/toolkit";
 
-export interface HotelsState {
+export interface ProductSlice {
   products: Product[];
   discountProduct: Product[];
   error: string | null;
   status: "idle" | "fulfilled" | "pending" | "error";
 }
 
-const initialState: HotelsState = {
+const initialState: ProductSlice = {
   discountProduct: [],
   products: [],
   error: null,
