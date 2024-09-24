@@ -10,9 +10,12 @@ import Avatar from "@/components/Profile/Avatar";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
-  const [fullName, setFullName] = useState("");
-  const [number, setNumber] = useState<string>("+7");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [userState, setUserState] = useState({
+    fullName: "",
+    number: "",
+    avatarUrl: "",
+  });
+
   // const [session, setSession] = useState<Session | null>(null)
   const session = useAppSelector((store) => store.session.session);
   const user = useAppSelector((store) => store.user);
@@ -21,9 +24,11 @@ export default function ProfilePage() {
     if (session) getProfile();
   }, [session]);
   useEffect(() => {
-    setAvatarUrl(user.avatar_url);
-    setFullName(user.full_name);
-    setNumber(user.phone ? user.phone.toString() : "+7");
+    setUserState({
+      fullName: user.full_name,
+      number: user.phone ? user.phone.toString() : "+7",
+      avatarUrl: user.avatar_url,
+    });
   }, [user]);
   function validatePhoneNumber(phone: string): boolean {
     const phoneRegex = /^\+7\d{10}$/;
@@ -88,10 +93,14 @@ export default function ProfilePage() {
           >
             <Avatar
               size={150}
-              url={avatarUrl}
+              url={userState.avatarUrl}
               onUpload={(url: string) => {
-                setAvatarUrl(url);
-                updateProfile({ full_name: fullName, number, avatar_url: url });
+                setUserState({ ...userState, avatarUrl: url });
+                updateProfile({
+                  full_name: userState.fullName,
+                  number: userState.number,
+                  avatar_url: url,
+                });
               }}
             />
             <View style={{ width: "50%" }}>
@@ -120,9 +129,9 @@ export default function ProfilePage() {
                 ]}
                 onPress={() =>
                   updateProfile({
-                    full_name: fullName,
-                    number,
-                    avatar_url: avatarUrl,
+                    full_name: userState.fullName,
+                    number: userState.number,
+                    avatar_url: userState.avatarUrl,
                   })
                 }
               >
@@ -150,7 +159,6 @@ export default function ProfilePage() {
               label="Почта"
               disabled
               value={session?.user?.email || ""}
-              onChangeText={(text) => setFullName(text)}
               placeholderTextColor={"#e9e7e7"}
               labelStyle={styles.inputLabelStyle}
               inputStyle={styles.inputStyles}
@@ -162,8 +170,10 @@ export default function ProfilePage() {
             />
             <Input
               label="Полное имя"
-              value={fullName || ""}
-              onChangeText={(text) => setFullName(text)}
+              value={userState.fullName || ""}
+              onChangeText={(text) =>
+                setUserState({ ...userState, fullName: text })
+              }
               placeholderTextColor={"#e9e7e7"}
               labelStyle={styles.inputLabelStyle}
               inputStyle={styles.inputStyles}
@@ -177,8 +187,10 @@ export default function ProfilePage() {
               textContentType="telephoneNumber"
               inputMode="tel"
               label="Телефон"
-              value={number}
-              onChangeText={(text) => setNumber(text)}
+              value={userState.number}
+              onChangeText={(text) =>
+                setUserState({ ...userState, number: text })
+              }
               placeholderTextColor={"#e9e7e7"}
               style={styles.text}
               labelStyle={styles.inputLabelStyle}

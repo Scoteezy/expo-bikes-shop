@@ -2,19 +2,6 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "../supabase";
 import { Product } from "@/types/Product";
 
-export const checkFavorite = async (session: Session, product_id: string) => {
-  const { data, error, status } = await supabase
-    .from("favorites")
-    .select(`id`)
-    .eq("user_id", session?.user.id)
-    .eq("product_id", product_id);
-
-  if (data && data.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-};
 export const makeFavorite = async (session: Session, product_id: string) => {
   const { data, error } = await supabase
     .from("favorites")

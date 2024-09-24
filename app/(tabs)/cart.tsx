@@ -2,14 +2,28 @@ import CartItem from "@/components/Cart/CartItem";
 import TitleHeader from "@/components/Header/TitleHeader";
 import GradientBackground from "@/components/Shared/GradientBackground";
 import GradientButton from "@/components/Shared/GradientButton";
-import { useAppSelector } from "@/lib/store/hooks";
+import { getUserCart } from "@/lib/server/queries/cart";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { fetchCart } from "@/lib/store/slices/cartSlice";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View, StyleSheet, Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 const CartPage = () => {
-  const { products } = useAppSelector((store) => store.products);
+  const { cart } = useAppSelector((store) => store.cart);
+  const { session } = useAppSelector((store) => store.session);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const fetch = async () => {
+      if (!session) {
+        return;
+      }
+      await dispatch(fetchCart(session));
+      console.log(cart);
+    };
+    fetch();
+  }, []);
   return (
     <GradientBackground>
       <TitleHeader title="Корзина" />
@@ -17,7 +31,7 @@ const CartPage = () => {
       <View style={styles.container}>
         <ScrollView style={{ maxHeight: 450 }}>
           <View style={styles.items}>
-            {products.map((product) => (
+            {cart.map((product) => (
               <CartItem
                 key={product.id}
                 product={product}

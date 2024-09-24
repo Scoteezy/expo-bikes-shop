@@ -1,9 +1,8 @@
-import { View, StyleSheet, Text, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 
 import GradientBackground from "@/components/Shared/GradientBackground";
 import TitleHeader from "@/components/Header/TitleHeader";
 import { defaultStyles } from "@/constants/Style";
-import CartItem from "@/components/Cart/CartItem";
 import { useAppSelector } from "@/lib/store/hooks";
 import { router } from "expo-router";
 import OrderItem from "@/components/Orders/OrderItem";

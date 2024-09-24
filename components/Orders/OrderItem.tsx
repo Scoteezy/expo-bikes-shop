@@ -1,9 +1,6 @@
 import { View, StyleSheet, Text } from "react-native";
 import GlassView from "@/components/Shared/GlassView";
 import { Product } from "@/types/Product";
-import Category from "../Shared/Category";
-import { FilterType } from "@/types";
-import Price from "../Shared/Price";
 
 const OrderItem = ({
   onClick,

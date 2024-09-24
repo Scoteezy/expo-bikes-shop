@@ -5,13 +5,11 @@ import GradientButton from "@/components/Shared/GradientButton";
 import { LoadingOrError } from "@/components/Shared/LoadingOrError";
 import Price from "@/components/Shared/Price";
 import { defaultStyles } from "@/constants/Style";
-import {
-  checkFavorite,
-  makeFavorite,
-  removeFavorite,
-} from "@/lib/server/queries/favorite";
+import { addToCart } from "@/lib/server/queries/cart";
+import { makeFavorite, removeFavorite } from "@/lib/server/queries/favorite";
 import { supabase } from "@/lib/server/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { fetchCart } from "@/lib/store/slices/cartSlice";
 import {
   fetchFavorite,
   makeFavoriteSync,
@@ -19,20 +17,19 @@ import {
 } from "@/lib/store/slices/favoriteSlice";
 import { FilterType } from "@/types";
 import { Product } from "@/types/Product";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Pressable } from "react-native";
 import { View, Image, StyleSheet, Text } from "react-native";
 export default function ProductPage() {
   const [productImage, setProductImage] = useState("");
   const [isFavorite, setIsFavorite] = useState<boolean | undefined>();
-  const [isInCart, setIsInCart] = useState(true);
+  const [isInCart, setIsInCart] = useState(false);
   const params = useLocalSearchParams();
   const { id } = params;
   const products = useAppSelector((store) => store.products.products);
   const session = useAppSelector((store) => store.session.session);
+  const cart = useAppSelector((store) => store.cart.cart);
   const product: Product | undefined = useMemo(() => {
     return products.find((obj) => obj.id == id);
   }, [id]);
@@ -69,12 +66,29 @@ export default function ProductPage() {
         await dispatch(fetchFavorite(session));
       }
       const isFav = !!favorite.find((prod) => prod.id === id);
-      // const isFav = await checkFavorite(session, id as string);
       setIsFavorite(isFav);
     }
+    async function checkInCart() {
+      if (!session) {
+        return;
+      }
+      if (cart.length === 0 || cart === null || !cart) {
+        console.log("dispatch");
+        await dispatch(fetchCart(session));
+      }
+      const isInCart = !!favorite.find((prod) => prod.id === id);
+      setIsInCart(isInCart);
+    }
     checkFav();
+    checkInCart();
     product && downloadImage(product.image);
   }, [product]);
+  const addInCart = async () => {
+    if (!session) {
+      return;
+    }
+    const add = addToCart(session.user.id, id as string);
+  };
   const makeFav = async () => {
     if (!session) {
       return;
@@ -154,9 +168,7 @@ export default function ProductPage() {
             />
             <GradientButton
               onPress={
-                isInCart
-                  ? () => router.navigate("/cart")
-                  : () => console.log("add to cart")
+                isInCart ? () => router.navigate("/cart") : () => addInCart()
               }
               buttonStyles={{ width: 170, height: 44 }}
             >
