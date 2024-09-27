@@ -5,11 +5,10 @@ import GradientButton from "@/components/Shared/GradientButton";
 import { LoadingOrError } from "@/components/Shared/LoadingOrError";
 import Price from "@/components/Shared/Price";
 import { defaultStyles } from "@/constants/Style";
-import { addToCart } from "@/lib/server/queries/cart";
 import { makeFavorite, removeFavorite } from "@/lib/server/queries/favorite";
 import { supabase } from "@/lib/server/supabase";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { fetchCart } from "@/lib/store/slices/cartSlice";
+import { fetchCart, addToCart } from "@/lib/store/slices/cartSlice";
 import {
   fetchFavorite,
   makeFavoriteSync,
@@ -87,7 +86,7 @@ export default function ProductPage() {
     if (!session) {
       return;
     }
-    const add = addToCart(session.user.id, id as string);
+    await dispatch(addToCart({ session, productId: id as string }));
   };
   const makeFav = async () => {
     if (!session) {
