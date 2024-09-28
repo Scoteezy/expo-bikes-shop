@@ -46,7 +46,7 @@ export default function FavoritePage() {
   }
   return (
     <GradientBackground>
-      <TitleHeader title="Избранное" />
+      <TitleHeader title="Избранное" backButton={false} />
       <View style={[defaultStyles.container, { marginHorizontal: 20 }]}>
         <ScrollView>
           <GlassView onClick={() => router.replace("/(tabs)")}>

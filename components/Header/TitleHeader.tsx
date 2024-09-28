@@ -1,13 +1,40 @@
 import { StyleSheet, View, Text } from "react-native";
+import GradientButton from "../Shared/GradientButton";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { router } from "expo-router";
 
-const TitleHeader = ({ title }: { title: string }) => {
-  return (
-    <View style={styles.multiHeaderContainer}>
-      <Text numberOfLines={1} style={styles.title}>
-        {title}
-      </Text>
-    </View>
-  );
+const TitleHeader = ({
+  title,
+  backButton,
+}: {
+  title: string;
+  backButton: boolean;
+}) => {
+  if (backButton) {
+    return (
+      <View style={styles.multiHeaderContainer}>
+        <GradientButton
+          onPress={() => router.back()}
+          buttonStyles={{ width: 50 }}
+        >
+          <FontAwesome name="chevron-left" size={22} color="#fff" />
+        </GradientButton>
+        <View style={styles.titleContainer}>
+          <Text numberOfLines={1} style={styles.title}>
+            {title}
+          </Text>
+        </View>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.multiHeaderContainer}>
+        <Text numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+      </View>
+    );
+  }
 };
 
 export default TitleHeader;
@@ -31,5 +58,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  titleContainer: {
+    flex: 1, // Занимает оставшееся пространство
+    alignItems: "center", // Центрирует текст по горизонтали
   },
 });

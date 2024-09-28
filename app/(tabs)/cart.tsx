@@ -1,18 +1,30 @@
 import CartItem from "@/components/Cart/CartItem";
 import TitleHeader from "@/components/Header/TitleHeader";
 import GradientBackground from "@/components/Shared/GradientBackground";
-import GradientButton from "@/components/Shared/GradientButton";
-import { getUserCart } from "@/lib/server/queries/cart";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { fetchCart } from "@/lib/store/slices/cartSlice";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 const CartPage = () => {
-  const { cart } = useAppSelector((store) => store.cart);
+  const { cart, status } = useAppSelector((store) => store.cart);
   const { session } = useAppSelector((store) => store.session);
+  const totalPrice = cart
+    .map((product) => {
+      const discount = product.discount ?? 0;
+      const discountedPrice = product.price * (1 - discount / 100);
+      return discountedPrice * product.quantity;
+    })
+    .reduce((a, b) => a + b, 0);
+
   const dispatch = useAppDispatch();
   useEffect(() => {
     const fetch = async () => {
@@ -24,9 +36,20 @@ const CartPage = () => {
     };
     fetch();
   }, []);
+  if (status !== "fulfilled") {
+    return (
+      <GradientBackground>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
+        >
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      </GradientBackground>
+    );
+  }
   return (
     <GradientBackground>
-      <TitleHeader title="Корзина" />
+      <TitleHeader title="Корзина" backButton={false} />
 
       <View style={styles.container}>
         <ScrollView style={{ maxHeight: 450 }}>
@@ -35,6 +58,7 @@ const CartPage = () => {
               <CartItem
                 key={product.id}
                 product={product}
+                session={session}
                 onClick={() =>
                   router.push({
                     pathname: "/product",
@@ -48,7 +72,7 @@ const CartPage = () => {
       </View>
       <View style={styles.orderButtonContainer}>
         <Pressable
-          onPress={() => console.log()}
+          onPress={() => router.push({ pathname: "/order" })}
           style={({ pressed }) => [
             styles.orderButton,
             pressed && { opacity: 0.7 },
@@ -58,7 +82,7 @@ const CartPage = () => {
             К оформлению
           </Text>
           <Text style={{ color: "#fff", fontSize: 18, fontWeight: "regular" }}>
-            200 ₽
+            {totalPrice} ₽
           </Text>
         </Pressable>
       </View>

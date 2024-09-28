@@ -5,7 +5,7 @@ export interface Product {
   name: string;
   price: number;
   category: string;
-  in_stock: boolean;
+  in_stock: number;
   image: string;
   description: string;
   discount?: number;

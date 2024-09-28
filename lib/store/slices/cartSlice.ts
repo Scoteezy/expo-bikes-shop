@@ -86,6 +86,8 @@ export const cartSlice = createSliceWithThunk({
           state.error = null;
         },
         fulfilled: (state, action) => {
+          console.log("added");
+          console.log(action.payload.products);
           if (action.payload.products) {
             state.cart = action.payload.products;
             state.status = "fulfilled";

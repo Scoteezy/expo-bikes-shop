@@ -11,7 +11,7 @@ export default function MapPage() {
   const orders = useAppSelector((store) => store.products.products);
   return (
     <GradientBackground>
-      <TitleHeader title="Заказы" />
+      <TitleHeader title="Заказы" backButton={false} />
 
       <View style={[defaultStyles.container, { marginHorizontal: 20 }]}>
         <ScrollView style={{ maxHeight: 800 }}>

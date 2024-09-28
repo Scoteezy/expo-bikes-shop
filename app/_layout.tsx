@@ -4,11 +4,12 @@ import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
-
+import Toast from "react-native-toast-message";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/server/supabase";
 import { Provider } from "react-redux";
 import { store } from "@/lib/store/store";
+import { toastConfig } from "@/components/Shared/Toast";
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -68,22 +69,33 @@ function RootLayoutNav() {
     });
   }, []);
   return (
-    <Provider store={store}>
-      <Stack>
-        {session?.user ? (
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        )}
-        <Stack.Screen
-          name="product"
-          options={{
-            title: "Об отеле",
-            headerBackTitle: "Назад",
-            headerShown: false,
-          }}
-        />
-      </Stack>
-    </Provider>
+    <>
+      <Provider store={store}>
+        <Stack>
+          {session?.user ? (
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          ) : (
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          )}
+          <Stack.Screen
+            name="product"
+            options={{
+              title: "О продукте",
+              headerBackTitle: "Назад",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="order"
+            options={{
+              title: "Заказ",
+              headerBackTitle: "Назад",
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </Provider>
+      <Toast config={toastConfig} />
+    </>
   );
 }

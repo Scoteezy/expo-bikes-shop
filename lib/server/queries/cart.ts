@@ -56,58 +56,113 @@ export const getUserCart = async (
 };
 export const addToCart = async (
   userId: string,
-  productId: string,
-  quantity: number = 1
+  productId: string
 ): Promise<{ data: null | CartProduct[]; error: PostgrestError | null }> => {
   try {
-    // Проверяем, есть ли этот товар уже в корзине
+    // Check if the product is already in the cart
     const { data: existingItem, error: fetchError } = await supabase
       .from("cart")
       .select("quantity,id")
       .eq("user_id", userId)
       .eq("product_id", productId)
       .single();
-    console.log(existingItem);
-    console.log(fetchError);
+
     if (fetchError && fetchError.code !== "PGRST116") {
       console.error("Error checking cart item:", fetchError.message);
       return { data: null, error: fetchError };
     }
 
-    let newQuantity = quantity;
+    let result;
 
     if (existingItem) {
-      // Если товар уже в корзине, увеличиваем количество
-      newQuantity += existingItem.quantity;
+      // If the product is already in the cart, increase its quantity
+      let newQuantity = existingItem.quantity + 1;
+
+      // Use update to modify the quantity and return the updated row
+      const { data, error } = await supabase
+        .from("cart")
+        .update({ quantity: newQuantity })
+        .eq("id", existingItem.id)
+        .select("*"); // Return all columns after the update
+
+      if (error) {
+        console.error("Error updating cart item:", error.message);
+        return { data: null, error };
+      }
+
+      result = data;
+    } else {
+      // If the product is not in the cart, insert it and return the inserted row
+      const { data, error } = await supabase
+        .from("cart")
+        .insert([
+          {
+            user_id: userId,
+            product_id: productId,
+            quantity: 1,
+          },
+        ])
+        .select("*"); // Return all columns after the insert
+
+      if (error) {
+        console.error("Error adding to cart:", error.message);
+        return { data: null, error };
+      }
+
+      result = data;
     }
 
-    // Используем upsert для обновления количества или вставки нового товара
-    const { data, error } = await supabase.from("cart").upsert([
-      {
-        id: existingItem?.id,
-        user_id: userId,
-        product_id: productId,
-        quantity: newQuantity,
-      },
-    ]);
+    // Fetch the updated cart for the user
+    const { data: cartData, error: cartError } = await supabase
+      .from("cart")
+      .select("product_id,quantity")
+      .eq("user_id", userId);
 
-    if (error) {
-      console.error("Error adding to cart:", error.message);
-      return { data: null, error };
+    if (cartError) {
+      console.error("Error fetching cart:", cartError.message);
+      return { data: null, error: cartError };
     }
 
-    return { data, error: null };
+    // Fetch the products from the cart
+    const { data: productsData, error: productsError } = await supabase
+      .from("products")
+      .select(
+        `id,name,price,category,in_stock,image,description, discount(discount)`
+      )
+      .in(
+        "id",
+        cartData.map((item) => item.product_id)
+      );
+
+    if (productsError) {
+      console.error("Error fetching products:", productsError.message);
+      return { data: null, error: productsError };
+    }
+
+    // Map the products data with quantity and discount
+    const dataWithQuantityAndDiscount = productsData?.map((product) => {
+      const cartItem = cartData.find((item) => item.product_id === product.id);
+      return {
+        ...product,
+        // Handle discount field safely
+        discount: product.discount ? product.discount?.[0]?.discount : null,
+        quantity: cartItem ? cartItem.quantity : 1,
+      };
+    });
+
+    return { data: dataWithQuantityAndDiscount, error: null };
   } catch (error) {
     console.error("Unexpected error:", error);
     return { data: null, error: error as PostgrestError };
   }
 };
+
 export const removeFromCart = async (
   userId: string,
   productId: string
-): Promise<{ data: null | CartProduct[]; error: PostgrestError | null }> => {
+): Promise<{ data: CartProduct[] | null; error: PostgrestError | null }> => {
   try {
-    // Получаем текущее количество товара в корзине
+    // Fetch the current quantity of the product in the cart
     const { data: existingItem, error: fetchError } = await supabase
       .from("cart")
       .select("quantity")
@@ -121,12 +176,12 @@ export const removeFromCart = async (
     }
 
     if (!existingItem) {
-      return { data: null, error: null }; // Если товара нет в корзине
+      return { data: null, error: null }; // If the product is not in the cart
     }
 
     if (existingItem.quantity > 1) {
-      // Если больше одного, уменьшаем количество
-      const { data, error } = await supabase
+      // If the quantity is more than one, decrement the quantity
+      const { error } = await supabase
         .from("cart")
         .update({ quantity: existingItem.quantity - 1 })
         .eq("user_id", userId)
@@ -136,11 +191,9 @@ export const removeFromCart = async (
         console.error("Error updating cart item:", error.message);
         return { data: null, error };
       }
-
-      return { data, error: null };
     } else {
-      // Если количество товара 1, удаляем его из корзины
-      const { data, error } = await supabase
+      // If the quantity is one, remove the item from the cart
+      const { error } = await supabase
         .from("cart")
         .delete()
         .eq("user_id", userId)
@@ -150,9 +203,51 @@ export const removeFromCart = async (
         console.error("Error deleting cart item:", error.message);
         return { data: null, error };
       }
-
-      return { data, error: null };
     }
+
+    // Fetch the updated cart for the user
+    const { data: cartData, error: cartError } = await supabase
+      .from("cart")
+      .select("product_id,quantity")
+      .eq("user_id", userId);
+
+    if (cartError) {
+      console.error("Error fetching cart:", cartError.message);
+      return { data: null, error: cartError };
+    }
+
+    // If the cart is empty, return an empty array
+    if (!cartData || cartData.length === 0) {
+      return { data: [], error: null };
+    }
+
+    // Fetch product details for the items in the cart
+    const { data: productsData, error: productsError } = await supabase
+      .from("products")
+      .select(
+        `id,name,price,category,in_stock,image,description, discount(discount)`
+      )
+      .in(
+        "id",
+        cartData.map((item) => item.product_id)
+      );
+
+    if (productsError) {
+      console.error("Error fetching products:", productsError.message);
+      return { data: null, error: productsError };
+    }
+
+    // Map the product data with the quantity and discount from the cart
+    const dataWithQuantityAndDiscount = productsData?.map((product) => {
+      const cartItem = cartData.find((item) => item.product_id === product.id);
+      return {
+        ...product,
+        discount: product.discount ? product.discount?.[0]?.discount : null,
+        quantity: cartItem ? cartItem.quantity : 1,
+      };
+    });
+
+    return { data: dataWithQuantityAndDiscount, error: null };
   } catch (error) {
     console.error("Unexpected error:", error);
     return { data: null, error: error as PostgrestError };

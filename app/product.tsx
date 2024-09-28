@@ -75,13 +75,14 @@ export default function ProductPage() {
         console.log("dispatch");
         await dispatch(fetchCart(session));
       }
-      const isInCart = !!favorite.find((prod) => prod.id === id);
+      const isInCart = !!cart.find((prod) => prod.id === id);
+      console.log(cart.find((prod) => prod.id === id));
       setIsInCart(isInCart);
     }
     checkFav();
     checkInCart();
     product && downloadImage(product.image);
-  }, [product]);
+  }, [id]);
   const addInCart = async () => {
     if (!session) {
       return;
