@@ -1,27 +1,47 @@
 import { View, StyleSheet, Text } from "react-native";
 import GlassView from "@/components/Shared/GlassView";
-import { Product } from "@/types/Product";
+import { Order } from "@/types/Order";
 
-const OrderItem = ({
-  onClick,
-  product,
-}: {
-  onClick: () => void;
-  product: Product;
-}) => {
+const OrderItem = ({ order }: { order: Order }) => {
   return (
     <View style={{ width: "100%" }}>
-      <GlassView onClick={onClick}>
+      <GlassView>
         <View style={{ gap: 8 }}>
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <Text numberOfLines={1} style={styles.text}>
-              Заказ №123123
+              Заказ № {order.id.slice(0, 7)}
             </Text>
-            <Text style={styles.itemSubText}>23.09.2024</Text>
+            <Text style={styles.itemSubText}>
+              {new Date(order.created_at).toLocaleDateString()}
+            </Text>
           </View>
-          <Text style={styles.itemSubText}> 3 Товара • 123123 ₽</Text>
+
+          <Text numberOfLines={1} style={styles.itemSubText}>
+            Статус заказа: {order.status}
+          </Text>
+          <Text numberOfLines={2} style={styles.itemSubText}>
+            Адрес пункта выдачи: {order.address}
+          </Text>
+          <Text numberOfLines={1} style={styles.itemSubText}>
+            Ожидаемая дата доставки:{" "}
+            {new Date(
+              new Date(order.created_at).setDate(
+                new Date(order.created_at).getDate() + 7
+              )
+            ).toLocaleDateString()}
+          </Text>
+
+          <Text numberOfLines={1} style={styles.itemSubText}>
+            Стоимость: {order.total} ₽
+          </Text>
+          <Text style={styles.itemSubText}>Товары: </Text>
+          {order.order_items.map((item) => (
+            <Text style={styles.itemSubText} key={item.product}>
+              {item.product} - {item.quantity} шт.
+            </Text>
+          ))}
         </View>
       </GlassView>
     </View>

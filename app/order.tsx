@@ -1,20 +1,22 @@
 import TitleHeader from "@/components/Header/TitleHeader";
 import GlassView from "@/components/Shared/GlassView";
 import GradientBackground from "@/components/Shared/GradientBackground";
-import { useAppSelector } from "@/lib/store/hooks";
+import { showToast } from "@/components/Shared/Toast";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { createOrder, fetchOrders } from "@/lib/store/slices/orderSlice";
+import { fetchUser } from "@/lib/store/slices/userSlice";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 
-import {
-  View,
-  Image,
-  StyleSheet,
-  Text,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, Text, Pressable } from "react-native";
 export default function ProductPage() {
+  const dispatch = useAppDispatch();
   const cart = useAppSelector((store) => store.cart.cart);
+  const orders = useAppSelector((store) => store.orders.orders);
   const user = useAppSelector((store) => store.user);
+  const session = useAppSelector((store) => store.session.session);
+  const [loading, setLoading] = useState(false);
   const totalPrice = cart
     .map((product) => {
       const discount = product.discount ?? 0;
@@ -22,6 +24,30 @@ export default function ProductPage() {
       return discountedPrice * product.quantity;
     })
     .reduce((a, b) => a + b, 0);
+  useEffect(() => {
+    const getUserAndOrders = async () => {
+      setLoading(true);
+      if (!session) return;
+      await dispatch(fetchUser(session));
+      if (orders.length === 0 || orders === null || !orders) {
+        dispatch(fetchOrders());
+      }
+      setLoading(false);
+    };
+
+    getUserAndOrders();
+  }, []);
+  const create = async () => {
+    setLoading(true);
+    await dispatch(createOrder({ total: totalPrice, products: cart }));
+    showToast({
+      type: "success",
+      title: "Заказ создан",
+      description: "Заказ создан",
+    });
+    router.replace("/orders");
+    setLoading(false);
+  };
   return (
     <GradientBackground>
       <TitleHeader title={"Оформление заказа"} backButton={true} />
@@ -62,7 +88,10 @@ export default function ProductPage() {
           style={({ pressed }) => [
             styles.orderButton,
             pressed && { opacity: 0.7 },
+            loading && { opacity: 0.3 },
           ]}
+          disabled={loading}
+          onPress={create}
         >
           <Text
             style={{
@@ -71,7 +100,7 @@ export default function ProductPage() {
               fontWeight: "regular",
             }}
           >
-            Оформить заказ
+            {loading ? "Подождите.." : "Оформить заказ"}
           </Text>
         </Pressable>
       </View>

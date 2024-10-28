@@ -4,12 +4,14 @@ import userReducer from "./slices/userSlice";
 import productsReducer from "./slices/productSlice";
 import favoriteReducer from "./slices/favoriteSlice";
 import cartReducer from "./slices/cartSlice";
+import orderReducer from "./slices/orderSlice";
 export const rootReducer = combineReducers({
   session: sessionReducer,
   user: userReducer,
   products: productsReducer,
   favorite: favoriteReducer,
   cart: cartReducer,
+  orders: orderReducer,
 });
 export const store = configureStore({
   reducer: rootReducer,

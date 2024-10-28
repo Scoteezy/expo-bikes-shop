@@ -21,7 +21,7 @@ export default function ProfilePage() {
   const user = useAppSelector((store) => store.user);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (session) getProfile();
+    if (session && !user.id) getProfile();
   }, [session]);
   useEffect(() => {
     setUserState({
