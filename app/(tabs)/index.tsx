@@ -14,18 +14,30 @@ import DiscountSlider from "@/components/Discount/DiscountSlider";
 import { ShopHeader } from "@/components/Header/ShopHeader";
 
 export default function TabOneScreen() {
+  const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const filters: Array<FilterType> = ["all", "bicycles", "gear"];
   const dispatch = useAppDispatch();
   const { products, discountProduct, status } = useAppSelector(
     (store) => store.products
   );
+  console.log(search);
   useEffect(() => {
     const getProducts = async () => {
       await dispatch(fetchProducts());
     };
     getProducts();
   }, []);
+
+  // Filter products based on activeFilter and search input
+  const filteredProducts = products
+    .filter((product) =>
+      activeFilter === "all" ? true : product.category === activeFilter
+    )
+    .filter((product) =>
+      product.name.toLowerCase().includes(search.toLowerCase())
+    );
+
   if (status !== "fulfilled") {
     return (
       <GradientBackground>
@@ -40,7 +52,11 @@ export default function TabOneScreen() {
 
   return (
     <GradientBackground>
-      <ShopHeader title="Выбери свой велосипед" />
+      <ShopHeader
+        title="Выбери свой велосипед"
+        search={search}
+        setSearch={setSearch}
+      />
       <View style={defaultStyles.container}>
         <View style={{ height: 230 }}>
           <DiscountSlider discountProducts={discountProduct || []} />
@@ -67,7 +83,7 @@ export default function TabOneScreen() {
         </View>
         <ScrollView>
           <View style={styles.items}>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <ShopItem
                 key={product.id}
                 product={product}

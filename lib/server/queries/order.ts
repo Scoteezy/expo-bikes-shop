@@ -116,36 +116,39 @@ export async function createOrderWithItems(
     const { data: orderItemsData, error: orderItemsError } = await supabase
       .from("order_items")
       .insert(orderItems)
-      .select("id,quantity");
+      .select("id,quantity, product_id");
     if (orderItemsError) {
       console.error("Ошибка при создании элементов заказа:", orderItemsError);
       return { data: null, error: orderItemsError };
     }
-    const productIds = orderItemsData
-      .flatMap((order) => order.id)
+    const productIds = orderItems
+      .map((item) => item.product_id)
       .filter((id, index, self) => self.indexOf(id) === index); // Уникальные product_id
+    console.log("Айди продуктов");
+    console.log(productIds);
     const { data: products, error: productsError } = await supabase
       .from("products")
       .select("id,name")
       .in("id", productIds);
-
+    console.log("Продукты");
+    console.log(products);
     if (orderItemsError) {
       console.error("Ошибка при получении продуктов:", orderItemsError);
       return { data: null, error: orderItemsError };
     }
-    console.log(products);
-    // Добавляем информацию о продукте к каждому элементу заказа
     const dataWithProducts: Order = {
       ...orderData,
-      order_items: orderItemsData.map((item) => ({
-        quantity: item.quantity,
-        product: products?.find((product) => product.id === item.id)?.name,
-      })),
+      order_items: orderItemsData.map((item) => {
+        console.log(item);
+        return {
+          quantity: item.quantity,
+          product: products?.find((product) => product.id === item.product_id)
+            ?.name,
+        };
+      }),
     };
-    console.log("Заказ и его элементы успешно созданы:", {
-      order: dataWithProducts,
-      orderItems: orderItemsData,
-    });
+    console.log("Заказ и его элементы успешно созданы:");
+    console.log(dataWithProducts);
     return { data: dataWithProducts, error: null };
   } catch (error) {
     return { data: null, error: null };

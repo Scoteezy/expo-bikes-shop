@@ -1,8 +1,10 @@
 import CartItem from "@/components/Cart/CartItem";
 import TitleHeader from "@/components/Header/TitleHeader";
+import GlassView from "@/components/Shared/GlassView";
 import GradientBackground from "@/components/Shared/GradientBackground";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { fetchCart } from "@/lib/store/slices/cartSlice";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import {
@@ -52,23 +54,52 @@ const CartPage = () => {
       <TitleHeader title="Корзина" backButton={false} />
 
       <View style={styles.container}>
-        <ScrollView style={{ maxHeight: 450 }}>
-          <View style={styles.items}>
-            {cart.map((product) => (
-              <CartItem
-                key={product.id}
-                product={product}
-                session={session}
-                onClick={() =>
-                  router.push({
-                    pathname: "/product",
-                    params: { id: product.id },
-                  })
-                }
+        {cart.length > 0 ? (
+          <ScrollView style={{ maxHeight: 450 }}>
+            <View style={styles.items}>
+              {cart.map((product) => (
+                <CartItem
+                  key={product.id}
+                  product={product}
+                  session={session}
+                  onClick={() =>
+                    router.push({
+                      pathname: "/product",
+                      params: { id: product.id },
+                    })
+                  }
+                />
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <GlassView onClick={() => router.replace("/(tabs)")}>
+            <View
+              style={{
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 15,
+                padding: 10,
+              }}
+            >
+              <FontAwesome
+                name="shopping-cart"
+                size={36}
+                color="#fff"
+                style={{ alignSelf: "center" }}
               />
-            ))}
-          </View>
-        </ScrollView>
+              <View style={{ gap: 5, width: "85%" }}>
+                <Text style={[styles.text, { fontSize: 18 }]}>
+                  Тут вы можете управлять товарами и оформить заказ.
+                </Text>
+                <Text style={[styles.text, { fontSize: 14 }]}>
+                  Пока что ваша корзина пуста. Как только вы добавите товары,
+                  они появятся здесь.
+                </Text>
+              </View>
+            </View>
+          </GlassView>
+        )}
       </View>
       <View style={styles.orderButtonContainer}>
         <Pressable
@@ -133,5 +164,8 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14,
+  },
+  text: {
+    color: "#FFF",
   },
 });

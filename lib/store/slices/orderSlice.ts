@@ -69,7 +69,6 @@ export const orderSlice = createSliceWithThunk({
             error,
           }: { data: Order | null; error: PostgrestError | null } =
             await createOrderWithItems(total, products);
-          console.log(products);
 
           if (error || !data) {
             return rejectWithValue(error?.message); // Если есть ошибка, возвращаем ее
@@ -89,6 +88,8 @@ export const orderSlice = createSliceWithThunk({
         },
         fulfilled: (state, action) => {
           if (action.payload.products) {
+            console.log("fulfilled data");
+            console.log(action.payload);
             state.orders = [...state.orders, action.payload.products];
             state.status = "fulfilled";
             state.error = null;
