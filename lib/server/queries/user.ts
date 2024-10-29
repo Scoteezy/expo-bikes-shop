@@ -2,7 +2,7 @@ import { supabase } from "@/lib/server/supabase";
 import { FetchedUser, UpdateUser } from "@/types/User";
 import { Session } from "@supabase/supabase-js";
 export const fetchUserInfo = async (session: Session): Promise<FetchedUser> => {
-  const { data, error, status } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select(`id,full_name,avatar_url,phone`)
     .eq("id", session?.user.id)
@@ -16,7 +16,7 @@ export const updateUserInfo = async (
 ): Promise<FetchedUser> => {
   const { error } = await supabase.from("profiles").upsert(updates);
   console.log(error);
-  const { data, status } = await supabase
+  const { data } = await supabase
     .from("profiles")
     .select(`id,full_name,avatar_url,phone`)
     .eq("id", id)

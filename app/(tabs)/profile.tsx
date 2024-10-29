@@ -104,20 +104,6 @@ export default function ProfilePage() {
               }}
             />
             <View style={{ width: "50%" }}>
-              {/* <GradientButton
-                onPress={() =>
-                  updateProfile({
-                    full_name: fullName,
-                    number,
-                    avatar_url: avatarUrl,
-                  })
-                }
-                buttonStyles={styles.acceptButton}
-              >
-                <Text style={styles.text}>
-                  {loading ? "Подождите ..." : "Изменить"}
-                </Text>
-              </GradientButton> */}
               <Pressable
                 style={({ pressed }) => [
                   {

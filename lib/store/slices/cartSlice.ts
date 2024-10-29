@@ -30,7 +30,7 @@ export const cartSlice = createSliceWithThunk({
         try {
           const { data, error }: FetchedCart = await getUserCart(session);
           if (error) {
-            return rejectWithValue(error.message); // Если есть ошибка, возвращаем ее
+            return rejectWithValue(error.message);
           }
           return { products: data };
         } catch (e) {
@@ -69,12 +69,11 @@ export const cartSlice = createSliceWithThunk({
             productId
           );
           if (error) {
-            return rejectWithValue(error.message); // Если есть ошибка, возвращаем ее
+            return rejectWithValue(error.message);
           }
           return { products: data };
         } catch (e) {
           console.log(e);
-          // Любая другая непредвиденная ошибка
           return rejectWithValue(
             e instanceof Error ? e.message : "Unknown error"
           );
@@ -111,12 +110,11 @@ export const cartSlice = createSliceWithThunk({
             productId
           );
           if (error) {
-            return rejectWithValue(error.message); // Если есть ошибка, возвращаем ее
+            return rejectWithValue(error.message);
           }
           return { products: data };
         } catch (e) {
           console.log(e);
-          // Любая другая непредвиденная ошибка
           return rejectWithValue(
             e instanceof Error ? e.message : "Unknown error"
           );

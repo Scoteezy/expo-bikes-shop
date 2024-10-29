@@ -5,13 +5,11 @@ export async function getUserOrders(): Promise<FetchedOrder> {
   // Получаем текущего пользователя
   const user = await supabase.auth.getUser();
 
-  // Проверяем, что пользователь авторизован
   if (!user.data.user?.id) {
     console.error("Пользователь не авторизован");
     return { data: null, error: null };
   }
 
-  // Получаем все заказы для текущего пользователя с элементами заказа
   const { data: orders, error: ordersError } = await supabase
     .from("orders")
     .select(
@@ -27,36 +25,30 @@ export async function getUserOrders(): Promise<FetchedOrder> {
     )
     .eq("user_id", user.data.user.id);
 
-  // Проверяем наличие ошибок при получении заказов
   if (ordersError) {
     console.error("Ошибка при получении заказов и их элементов:", ordersError);
     return { data: null, error: ordersError };
   }
 
-  // Проверяем, что есть заказы с элементами
   if (!orders?.length) {
     console.log("Заказы не найдены");
     return { data: [], error: null };
   }
 
-  // Получаем список всех product_id из order_items
   const productIds = orders
     .flatMap((order) => order.order_items.map((item) => item.product_id))
-    .filter((id, index, self) => self.indexOf(id) === index); // Уникальные product_id
+    .filter((id, index, self) => self.indexOf(id) === index);
 
-  // Получаем информацию о продуктах
   const { data: products, error: productsError } = await supabase
     .from("products")
     .select("id,name")
     .in("id", productIds);
 
-  // Проверяем наличие ошибок при получении продуктов
   if (productsError) {
     console.error("Ошибка при получении продуктов:", productsError);
     return { data: null, error: productsError };
   }
 
-  // Добавляем информацию о продукте к каждому элементу заказа
   const dataWithProducts: Order[] = orders.map((order) => ({
     ...order,
     order_items: order.order_items.map((item) => ({
@@ -68,7 +60,6 @@ export async function getUserOrders(): Promise<FetchedOrder> {
 
   console.log(dataWithProducts[0]);
 
-  // Возвращаем заказы с информацией о продуктах
   return { data: dataWithProducts, error: null };
 }
 
@@ -76,17 +67,13 @@ export async function createOrderWithItems(
   total: number,
   items: CartProduct[]
 ) {
-  // Получаем текущего пользователя
   const user = await supabase.auth.getUser();
 
-  // Проверяем, что пользователь авторизован
   if (!user.data.user?.id) {
     console.error("Пользователь не авторизован");
     return { data: null, error: null };
   }
-  console.log(user.data.user.id);
   try {
-    // Создаем заказ и получаем его ID
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .insert([
@@ -96,7 +83,7 @@ export async function createOrderWithItems(
         },
       ])
       .select("id,created_at,user_id, status, total, address")
-      .single(); // Используем .single() чтобы получить один объект заказа
+      .single();
 
     if (orderError) {
       console.error("Ошибка при создании заказа:", orderError);
@@ -105,14 +92,12 @@ export async function createOrderWithItems(
 
     const orderId = orderData.id;
 
-    // Подготавливаем элементы заказа для вставки
     const orderItems = items.map((item) => ({
       order_id: orderId,
       product_id: item.id,
       quantity: item.quantity,
     }));
 
-    // Создаем элементы заказа
     const { data: orderItemsData, error: orderItemsError } = await supabase
       .from("order_items")
       .insert(orderItems)
@@ -123,15 +108,11 @@ export async function createOrderWithItems(
     }
     const productIds = orderItems
       .map((item) => item.product_id)
-      .filter((id, index, self) => self.indexOf(id) === index); // Уникальные product_id
-    console.log("Айди продуктов");
-    console.log(productIds);
+      .filter((id, index, self) => self.indexOf(id) === index);
     const { data: products, error: productsError } = await supabase
       .from("products")
       .select("id,name")
       .in("id", productIds);
-    console.log("Продукты");
-    console.log(products);
     if (orderItemsError) {
       console.error("Ошибка при получении продуктов:", orderItemsError);
       return { data: null, error: orderItemsError };
@@ -147,8 +128,7 @@ export async function createOrderWithItems(
         };
       }),
     };
-    console.log("Заказ и его элементы успешно созданы:");
-    console.log(dataWithProducts);
+
     return { data: dataWithProducts, error: null };
   } catch (error) {
     return { data: null, error: null };
