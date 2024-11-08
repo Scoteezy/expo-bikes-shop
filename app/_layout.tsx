@@ -49,31 +49,77 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<"admin" | "user" | "">("");
   useEffect(() => {
+    // Получаем текущую сессию
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        router.replace("/(tabs)");
-      } else {
-        console.log("no user");
-      }
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) {
-        router.replace("/(tabs)");
+        fetchUserRole(session.user.email ?? "");
       } else {
         console.log("no user");
         router.replace("/(auth)/login");
       }
     });
+
+    // Обрабатываем изменения состояния авторизации
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        if (session) {
+          fetchUserRole(session.user.email ?? "");
+        } else {
+          console.log("no user");
+          router.replace("/(auth)/login");
+        }
+      }
+    );
+
+    // Очистка слушателя при размонтировании
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
+
+  // Функция для получения роли пользователя
+  const fetchUserRole = async (email: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("email", email)
+        .single();
+
+      if (error || !data) {
+        console.log(error);
+        setUserRole("user"); // Устанавливаем роль по умолчанию как "user"
+        router.replace("/(tabs)");
+        return;
+      }
+
+      const role = data.role;
+      setUserRole(role);
+      if (role === "admin") {
+        router.replace("/(admin)");
+      } else {
+        router.replace("/(tabs)");
+      }
+    } catch (error) {
+      setUserRole("user"); // Роль по умолчанию
+      router.replace("/(tabs)");
+    }
+  };
+  console.log(userRole);
   return (
     <>
       <Provider store={store}>
         <Stack>
           {session?.user ? (
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            userRole === "admin" ? (
+              <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+            ) : (
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            )
           ) : (
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           )}

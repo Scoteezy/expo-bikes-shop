@@ -10,6 +10,7 @@ export type userState = {
   avatar_url: string;
   phone: number;
   status: string;
+  email: string;
   error: unknown;
 };
 
@@ -20,6 +21,7 @@ const initialState: userState = {
   full_name: "",
   phone: 0,
   status: "",
+  email: "",
   error: null,
 };
 const createSliceWithThunk = buildCreateSlice({

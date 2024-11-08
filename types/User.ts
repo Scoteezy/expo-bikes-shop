@@ -5,6 +5,7 @@ export type User = {
   full_name: string;
   avatar_url: string;
   phone: string;
+  email: string;
 };
 export type FetchedUser = {
   data: User | null;
