@@ -28,7 +28,7 @@ export default function MapPage() {
     };
     getOrders();
   }, []);
-  if (status !== "fulfilled") {
+  if (status == "idle") {
     return (
       <GradientBackground>
         <View

@@ -58,10 +58,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#242C3B", // Фон хедера
     paddingHorizontal: 20,
   },
-  titleContainer: {
-    flex: 1, // Занимает оставшееся пространство
-    alignItems: "center", // Центрирует текст по горизонтали
-  },
   inputStyles: {
     color: "#fff",
     fontSize: 20,

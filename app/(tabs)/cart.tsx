@@ -38,7 +38,7 @@ const CartPage = () => {
     };
     fetch();
   }, []);
-  if (status !== "fulfilled") {
+  if (status == "idle") {
     return (
       <GradientBackground>
         <View

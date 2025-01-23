@@ -33,7 +33,7 @@ export default function FavoritePage() {
     };
     fetchFav();
   }, []);
-  if (status !== "fulfilled") {
+  if (status == "idle") {
     return (
       <GradientBackground>
         <View
